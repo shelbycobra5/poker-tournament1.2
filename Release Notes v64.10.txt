@@ -1,0 +1,18 @@
+MyPoker Tournament v64.10 — Elapsed-Time Pie Colors
+
+Based on the user-confirmed v64.9 local test baseline.
+
+Changes:
+- The Modern full-screen time pie now starts as a grey circle at the beginning of a level.
+- As time elapses, the elapsed portion fills clockwise with the current warning color: green normally, yellow when less than 60 seconds remain, and red during the final 10 seconds.
+- The existing timer percentage continues to display the percentage of time remaining.
+- The existing Timer Beacon thresholds/colors are unchanged.
+- Classic, tournament logic, audio, and instant Modern control show/hide behavior are unchanged.
+
+Validation performed:
+- Python syntax compilation passed.
+- Modern timer-centering checks passed.
+- Modern layout refinement checks passed.
+- Timer Beacon regression checks passed.
+- Auto-advance / clock-tab regression check passed.
+- Windows visual confirmation is still required.

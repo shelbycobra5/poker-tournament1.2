@@ -1,0 +1,24 @@
+MYPOKER TOURNAMENT v1.2.0 — RELEASE CANDIDATE STATUS
+====================================================
+Internal source baseline: v64.11
+Customer release version: 1.2.0
+
+Prepared in this candidate:
+- Hid the Statistics & Reports notebook tab while retaining its frame and implementation.
+- Updated installer script, executable version metadata, and customer-facing documentation to 1.2.0.
+- Updated the manual DOCX and regenerated its PDF.
+- Corrected the manual and local-test README to describe the 20-second red pie warning.
+- Updated Modern control documentation to reflect 8–15 pt control fonts, 75–150% button scaling, and instant show/hide behavior.
+- Preserved the v64.11 application behavior and the existing Windows build workflow.
+
+Validation performed in the authoring environment:
+- Python syntax check passed.
+- All 17 packaged regression scripts passed under a virtual X display.
+- Documentation/version reference spot-checks passed.
+
+Still required before public distribution:
+- Run the Windows build workflow to produce MyPoker Tournament.exe and MyPokerTournament-Setup-1.2.0.exe.
+- Smoke-test the generated EXE and installer on Windows, including install/upgrade, startup, audio playback, tournament progression, payout calculations, Classic and Modern displays, and persistence of existing user data.
+- Confirm the installer artifact and release notes match the tested Windows build.
+
+This ZIP is the Windows release-candidate SOURCE package, not the compiled Windows installer. No GitHub repository or installed production build was changed.

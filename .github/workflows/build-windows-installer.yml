@@ -1,0 +1,81 @@
+name: Build MyPoker Tournament Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate release-candidate source and build bundled Windows application
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed." }
+          python -m pip install pyinstaller
+          if ($LASTEXITCODE -ne 0) { throw "PyInstaller installation failed." }
+          python -m py_compile poker_tournament_director.py
+          if ($LASTEXITCODE -ne 0) { throw "Python syntax check failed." }
+          python test_scenario_snapshot.py
+          if ($LASTEXITCODE -ne 0) { throw "Scenario snapshot regression check failed." }
+          python test_header_save_updates_active_scenario.py
+          if ($LASTEXITCODE -ne 0) { throw "Scenario header-save regression check failed." }
+          pyinstaller --noconfirm --clean --onefile --windowed --name "MyPoker Tournament" --icon "assets\MyPokerTournament.ico" --version-file "installer\version_info.txt" --add-data "User Manual.pdf;." --add-data "User Manual.docx;." --add-data "Long Gong.wav;." --add-data "One Minute.wav;." --add-data "assets\MyPokerTournament.ico;assets" --add-data "assets\MyPokerTournament_Icon.png;assets" --add-data "assets\MyPokerTournament_Banner.png;assets" poker_tournament_director.py
+          if ($LASTEXITCODE -ne 0) { throw "PyInstaller build failed." }
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup installation failed." }
+
+      - name: Build Windows installer
+        id: compile_installer
+        shell: pwsh
+        run: |
+          $iscc = Get-Command iscc.exe -ErrorAction SilentlyContinue
+          if ($null -ne $iscc) {
+            $isccPath = $iscc.Source
+          } else {
+            $candidates = @(
+              "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",
+              "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+              "$env:ProgramFiles\Inno Setup 7\ISCC.exe"
+            )
+            $isccPath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+            if (-not $isccPath) { throw "ISCC.exe was not found after installing Inno Setup." }
+          }
+          & $isccPath "installer\MyPokerTournament.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed." }
+          $issText = Get-Content "installer\MyPokerTournament.iss" -Raw
+          $match = [regex]::Match($issText, '(?m)^\s*#define\s+MyAppVersion\s+"([^"]+)"')
+          if (-not $match.Success) { throw 'Could not read MyAppVersion from installer script.' }
+          $appVersion = $match.Groups[1].Value
+          "app_version=$appVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          $expected = "installer\Output\MyPokerTournament-Setup-$appVersion.exe"
+          if (-not (Test-Path $expected)) {
+            Write-Host "Installer output directory contents:"
+            Get-ChildItem "installer\Output" -ErrorAction SilentlyContinue | Select-Object Name, Length
+            throw "Installer EXE was not created at expected path: $expected"
+          }
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyPokerTournament-Windows-Installer-v${{ steps.compile_installer.outputs.app_version }}
+          path: installer/Output/MyPokerTournament-Setup-${{ steps.compile_installer.outputs.app_version }}.exe
+          if-no-files-found: error
+          retention-days: 30

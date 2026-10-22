@@ -1,0 +1,271 @@
+MYPOKER TOURNAMENT 1.2.0 - WINDOWS RELEASE CANDIDATE
+=============================================================
+
+RELEASE PACKAGE
+---------------
+- Windows installer source package using PyInstaller and Inno Setup
+- Dedicated application icon applied to the executable, window/taskbar where supported, installer, and shortcuts
+- Branded installer artwork and manual cover banner
+- Offline in-app Help, contextual F1 Help, PDF user guide, and editable Word manual
+- Bundled Long Gong blind-start sound and One Minute low-time warning
+
+TOURNAMENT FEATURES
+-------------------
+- Scenario Manager and New Scenario Wizard for reusable tournament setups
+- Standard, Charity, Home Game, and Freeroll starting configurations; Charity and Freeroll are independent options
+- Count-based player/entry/rebuy/add-on tracking
+- Traditional, mixed fixed-dollar/percentage, and fixed freeroll payout modes
+- Mixed-payout safety validation and fallback to traditional percentages when necessary
+- Paid-position rules and charity maximum paid-place option
+- Blind structure editor/import, breaks, automatic transitions, pause-after-break option, and time adjustments
+- Adjustable main-window size and full-screen TV display with a time-remaining pie chart
+
+INSTALLATION
+------------
+The distributed installer is built on a Windows runner from this source package. The installed app is bundled with its Python runtime, so Python is not required on the PC running the installed app. The installer creates a Start Menu shortcut and can create a desktop shortcut.
+
+KNOWN LIMITATIONS / PRE-LIVE CHECKS
+-----------------------------------
+- The first release is unsigned, so Windows may display a SmartScreen or antivirus warning.
+- The session archive is saved as JSON; this release does not include a dedicated archive browser/restore interface.
+- Test gong and warning playback on the actual tournament PC and audio output device.
+- Test player/entry counts, one level transition, the low-time warning, and payout calculations before a live event.
+- Back up mypoker_tournament.json, mypoker_tournament_scenarios.json, and mypoker_tournament_sessions.json before updating.
+
+BUILD VALIDATION
+----------------
+The source syntax and package configuration can be checked in the build kit. The native Windows EXE and installer must be produced and smoke-tested by the Windows build workflow before public distribution; this Linux-authoring environment cannot directly execute the native Windows installer.
+
+Scenario save patch (v57)
+- Preserve imported blind levels and breaks when saving the current setup as a scenario.
+- The New Scenario Wizard's “Current blind structure” option uses the captured active structure.
+- Validate the scenario configuration before writing it to the scenario library.
+
+
+Build 57 scenario-save patch (Python test package)
+-------------------------------------------------
+- The upper-right Save button now updates the reusable configuration for the currently active saved scenario, including the captured blind structure, and separately saves the live session.
+- Added a regression test verifying that imported play levels and breaks survive the header Save path.
+- Scenario library name remains separate from tournament display name; use Scenario Manager > Rename or Edit Selected to change the scenario's library name.
+- Full interactive Windows GUI testing remains necessary before creating the final installer.
+
+
+Build 58 Python interface updates
+---------------------------------
+- New Scenario Wizard supports importing a blind template file (.xlsx, .csv, .tsv, or .txt) and reviewing its levels and breaks before saving.
+- Help content remains available from the upper header and F1, but now opens in a dedicated Help window instead of a main navigation tab.
+- Players & Entries navigation tab is temporarily hidden; its underlying count controls remain in the source for future reuse.
+- Moved Reset Tournament to Zero to Tournament Settings > Tournament Management, retaining the confirmation prompt and configuration-preservation behavior.
+- Updated README navigation and workflow notes.
+- Regression checks passed for Python syntax, scenario save/load snapshots, header Save, and GUI startup/navigation.
+- Windows installer is not rebuilt yet; user requested Python validation first.
+
+
+Branding update v60: product branding is MyPoker Tournament. The former subtitle has been removed from the user manual cover graphic.
+
+
+Version 61 update: Added a live Pause After Breaks checkbox to the Blind Structure toolbar. When a saved scenario is active, the setting is saved to that scenario immediately; otherwise it applies to the current unsaved setup.
+
+
+Blind pause runtime fix (v62.1 local test refresh)
+------------------------------------------------
+- The timer now checks the current state of the Blind Structure page's Pause After Blind Levels checkbox when a play level expires, and synchronizes the saved setting before deciding whether to pause.
+- Added a focused runtime regression test covering checked and unchecked behavior at play-level expiration.
+- The individual Pause? controls for breaks are unchanged.
+
+
+Break sound transition update (v62.2 local test package)
+-------------------------------------------------------
+- The configured Break Ends sound now plays only when the ending break is configured to pause and there is a following scheduled row.
+- If a break is configured to continue automatically, the break-end sound is skipped and the next play level uses the existing Blind Level Starts sound preference.
+- Added a regression check for both pause and automatic-transition sound paths.
+- Local Python package only; GitHub and the installed Windows version are unchanged.
+
+
+v62.3 LOCAL UI FIX
+- Removed the duplicate global Pause After Blind Levels checkbox from the Blind Structure toolbar. The global setting remains under Tournament Settings > Clock; individual break Pause? cells remain on the Blind Structure tab.
+
+
+v62.4 LOCAL BLIND TEMPLATE OPTIONS
+----------------------------------
+- Added four built-in starting blind structures to the New Scenario Wizard: Standard 20-Minute, Turbo 15-Minute, Hyper-Turbo 10-Minute, and Deep Stack 25-Minute.
+- Each template includes a blind progression, break placement, and break durations.
+- The selected template can be edited before saving the scenario. Current structure, file import, and copy-from-scenario choices remain available.
+- Template rows are copied into the scenario, so editing the schedule does not change built-in templates.
+- Added a focused regression test for the built-in blind templates.
+
+
+
+V62.5 LOCAL TEST UPDATE
+-----------------------
+- Added editable Excel blind-structure templates for Standard, Turbo, Hyper-Turbo, and Deep Stack schedules.
+- Excel imports now preserve the per-break Pause? Yes/No selection.
+- Added regression coverage for imported break pause values.
+
+
+V62.6 LOCAL TEST UPDATE
+-----------------------
+- Added four Texas-style blind templates starting at 100/200 and then 200/400.
+- Preserved the original 25/50 lower-blind structure as the Small Stack 20-Minute option.
+- Built-in Texas-style templates suggest a 25,000 starting stack; Small Stack suggests 10,000. The starting stack remains editable in the wizard.
+- Refreshed the Excel template workbook with all five schedules.
+
+
+V62.7 LOCAL TEST UPDATE — USER-ADJUSTED TURBO TEMPLATE
+------------------------------------------------------
+- Applied the uploaded adjusted Texas Turbo 15-Minute schedule to the built-in New Scenario Wizard template.
+- Preserved the 100/200 and 200/400 opening blinds, then followed the user's adjusted progression through 80000/160000.
+- Both Turbo breaks now default to Pause = Yes, matching the adjusted Excel worksheet.
+- Updated the regression test to verify the exact Turbo progression and individual break-pause defaults.
+- Replaced the workbook inside the local test package with the user's adjusted workbook. No GitHub or installed-build files were changed.
+
+
+V62.8 LOCAL TEST UPDATE — CONFIGURABLE PAYOUT TEMPLATES
+------------------------------------------------------
+- Added five traditional percentage payout profiles with editable/importable charts for 2–15 paid places.
+- Texas Standard (Preferred) is the default and uses 60/40 for 2 paid places, 50/30/20 for 3, and 50/25/16/9 for 4.
+- Entry-count defaults now pay 2 places for up to 10 entries, 3 places for 11–20, and 4 places for 21–30; proposed wider-field defaults above 30 remain editable.
+- Added `MyPoker Payout Chart Templates.xlsx` with five profile worksheets and formula-driven total percentage checks.
+- Kept Balanced (Current Defaults) available so users can retain the previous payout charts. Added import validation and focused regression tests.
+- No GitHub repository or installed Windows build was changed.
+
+
+V62.9 LOCAL TEST UPDATE — FULL-SCREEN TIMER BEACON
+-------------------------------------------------
+- The full-screen Hide Controls / Show Controls button now mirrors the time-remaining pie color.
+- Green is used above 60 seconds, yellow below 60 seconds, and red at 20 seconds or less, using the exact same timer color function.
+- Button text stays high-contrast: dark text on yellow, white text on green/red.
+- Button color stays tied to time remaining regardless of whether controls are currently shown or hidden.
+- Local Python test package only; no GitHub or installed build changes.
+
+
+v63.0 LOCAL PYTHON TEST — FULL-SCREEN DISPLAY THEMES
+- Added Classic and Modern full-screen display themes. Classic remains the default and retains the existing display style.
+- Modern theme adds a dark neon/cyan look and a bottom-docked control tab with smooth slide hide/show animation.
+- The tab continues to match the Timer Beacon green/yellow/red status. Green/red action button semantics remain intact; pause is neutral in Modern.
+- Theme selection persists in local test data and applies when opening the next full-screen display.
+- Added an automated regression check for theme settings, animation wiring, and action-button color semantics.
+
+
+V63.1 LOCAL PYTHON TEST — MODERN THEME TV LAYOUT POLISH
+-------------------------------------------------------
+- Moved the Modern control dock upward from the screen edge to add additional TV overscan-safe margin.
+- Reduced vertical spacing and type sizes in the Modern header/current/next level bands, preserving room for the dashboard on 720p displays. Classic remains unchanged.
+- Added rounded, cyan-edged panels for the current and next level bands, dashboard cards, prize-pot inset, action groups, and control dock.
+- Made the beacon tab a separate display-area control rather than allowing the dock's background frame to cover the dashboard. Its position is set after full-screen geometry settles; hide/show animation coordinates remain aligned with the moved dock.
+- Added test_modern_layout_refinements.py; the full regression suite, syntax check, and GUI hide/show smoke tests pass in the authoring environment.
+- Local testing only. No GitHub repository or installed production build has been changed.
+
+
+V63.2 LOCAL PYTHON TEST — EXPANDED MODERN DASHBOARD
+--------------------------------------------------
+- Enlarged the Modern Time Remaining pie and expanded the equal-height Status, Statistics, Time Remaining, and Prizes cards so a ten-place payout list fits on a common 720p layout.
+- Increased current blind timer/blind text and next-level timer/blind text, while keeping the dashboard below those bands.
+- Adjusted dashboard column proportions to provide more width for Status/Statistics and still retain a roomy Prizes card.
+- At 720p, compacted only the Modern control dock's vertical padding and moved its panel lower within the TV-safe inset, so action buttons stay visible while the ten-place payout remains readable. Classic remains unchanged.
+- Added resolution-aware sizing for larger displays: bigger current/next values, a larger pie, larger dashboard typography, and a lower dashboard start.
+- Added a focused regression test for Modern dashboard sizing and payout rows. Captured 1280x720 and 1920x1080 layout previews with ten payout places.
+- Local Python test package only. GitHub and the installed production build remain unchanged.
+
+
+V63.3 LOCAL SETTINGS TAB FIX
+----------------------------
+- Hide Tournament Settings > Tournament Type for Standard Tournament; show it only for Charity Tournament, Home Game, and Freeroll.
+- Selecting Standard also ensures Benefit Pot is off, preventing charity settings from remaining active under a standard configuration.
+- Switching away from the hidden tab returns the user to General.
+- Added a regression check. No GitHub or installed production changes.
+
+
+V63.4 AUTO-ADVANCE AND PAUSE SETTINGS CLEANUP
+---------------------------------------------
+- Removed the Clock subtab from Tournament Settings; it contained only the global pause-after-blind option, which has been removed. The main Tournament Clock tab remains unchanged.
+- Blind/play levels always advance automatically when their timer expires.
+- Each break pauses only when that specific row's Pause? setting is checked. Unspecified pause values default to No.
+- Older saved global pause-after-blind and pause-after-break settings are ignored so they cannot block automatic progression or silently pause every break.
+- Updated timer and scenario regression tests for automatic play-level transitions, per-break pause behavior, and Break Ends / Blind Level Starts sounds.
+- Local Python test build only; GitHub and the installed production version remain unchanged.
+
+
+V63.5 MODERN TIMER CENTERING
+----------------------------
+- Centered the Modern Time Remaining pie horizontally in the dashboard.
+- Narrowed Status and Statistics to balance the centered timer while preserving the wider prize list and ten-place payouts.
+- Classic theme proportions and tournament behavior remain unchanged.
+- Added a focused regression check.
+- Local Python test package only; no GitHub repository or installed production build changed.
+
+
+V63.6 LOCAL AUDIO CACHE FIX
+---------------------------
+- Restored the cache-first path for volume-adjusted PCM WAV files, so cached sounds are returned before reading and scaling sample data on every playback.
+- Added an audio-cache regression test.
+- This is a local Python test build; actual audio playback still requires verification on Windows, especially on the low-power stick PCs.
+
+V63.7 FULL-SCREEN CONTROL SIZING AND DISPLAY FORMATTING
+------------------------------------------------------
+- Added saved control-label font sizing (8–15 pt) and button scaling (75–150%) under Display & Sound.
+- Standardized the full-screen digital timer to use unslashed zeros and removed thousands separators from displayed blind values.
+- Classic and Modern themes share the control-size settings; dashboard text sizing remains separate.
+- Local Python test build only; no GitHub or installed production changes.
+
+
+V63.8 LOCAL TEST UPDATE — LIVE CONTROL APPEARANCE PREVIEW
+--------------------------------------------------------
+- Configure Full-Screen Controls now opens the full-screen tournament display with a floating appearance-settings dialog over it.
+- Control font and button size sliders apply immediately to the actual visible control dock, allowing users to judge readability from their TV/display without leaving and reopening the screen.
+- Save & Finish persists values and leaves the full-screen preview open; Escape returns to the main application. Cancel Preview reverts changes and closes the display.
+- Live resizing updates the Modern dock's reserved height and repositions the Timer Beacon tab so the tab remains attached to the control panel.
+- Built-in Help and local testing notes updated. Added a focused regression test.
+- Local Python test package only. No GitHub or installed production build changes.
+
+
+Version 63.9 — Live control-preview popup visibility fix
+- Fixed the live full-screen control-sizing popup being hidden behind the fullscreen display on some Windows setups.
+- The popup is now owned by the main application, kept topmost, and raised after the fullscreen display is mapped.
+- Removed the modal grab so a popup that is not visible cannot trap all application input and appear to freeze the program.
+- Preserved live font/button resizing, Save & Finish, Cancel Preview, the Classic/Modern display themes, and the Timer Beacon.
+
+
+V64.0 LOCAL TEST UPDATE — RESPONSIVE MODERN DASHBOARD
+----------------------------------------------------
+- Modern dashboard now recalculates the vertical space remaining after control-dock sizing changes.
+- Status, Statistics, Time Remaining and Prizes panels adapt their height, internal spacing, body and heading fonts, pie size, and pot-inset typography as control font/button-scale combinations grow.
+- Prevents lower status/statistics lines and prize positions through 10th from being clipped. At extreme settings on 720p, dashboard content scales down more noticeably; lower settings restore larger dashboard typography.
+- Classic layout remains unchanged.
+- Added runtime checks over mixed combinations of control font and button scale at 720p and 1080p.
+- Local Python test package only; no GitHub or installed production build changed.
+
+
+V64.1 LOCAL TEST UPDATE — STABLE MODERN DASHBOARD LAYOUT
+-------------------------------------------------------
+- Fixed a Modern dashboard flicker source: the 500 ms tournament refresh was repeatedly reapplying scaled fonts and panel spacing even when layout inputs had not changed.
+- Added a layout-input signature so Modern panel fitting skips redundant configuration and runs again only when relevant display dimensions, control settings, dashboard content, or dock height changes.
+- Removed the intermediate reset of the payout label to its unscaled font on every refresh; the adaptive fit now applies the selected payout size without a visible reset/re-scale cycle.
+- Classic is unchanged. Live appearance preview, Modern pie centering, payout list, controls, Timer Beacon, audio cache, blind progression, and per-break pause behavior are preserved.
+- Python syntax check passed. All 17 packaged regression scripts passed under a virtual X display, including the Modern adaptive dashboard test across 10 font/button combinations.
+- Linux virtual-display validation is not a substitute for Windows/TV testing. No GitHub repository or installed production build changed.
+
+
+V64.8 — INSTANT MODERN CONTROLS
+- Replaced Modern slide animation with immediate show/hide state changes.
+- Hidden mode reserves only the tab height and triggers a dashboard fit.
+- Classic and audio implementation unchanged.
+
+
+v64.11 changes:
+- Modern full-screen Pause Clock button now uses the same red styling as Classic.
+- Pie elapsed-time warning turns red at 20 seconds remaining (instead of 10); yellow remains below 60 seconds, and normal time remains green.
+
+
+MYPOKER TOURNAMENT v1.2.0 — CUSTOMER RELEASE CHANGES
+---------------------------------------------------
+- Customer-facing release version is 1.2.0; internal development baseline is v64.11.
+- Statistics & Reports is hidden from the main navigation. Its underlying code is retained for possible future use.
+- Modern full-screen timer pie starts grey; elapsed time fills green, changes to yellow below 60 seconds, and red at 20 seconds remaining.
+- Modern full-screen Pause Clock button uses the red negative-action style consistent with Classic.
+- Modern control font size is limited to 8–15 pt and button scaling to 75–150%; Modern show/hide controls switch instantly without animation.
+- Classic behavior and the approved v64.11 tournament, payout, blind progression, scenario, and audio behavior are intended to remain unchanged.
+
+RELEASE VALIDATION STATUS
+-------------------------
+This source package is a release candidate, not proof of a completed Windows installer. Build the executable and installer on the Windows workflow, then test installation, launch, saved-data preservation, audio, tournament progression, payout calculations, and Classic/Modern full-screen behavior before public distribution.

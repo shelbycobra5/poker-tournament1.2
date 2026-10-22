@@ -1,0 +1,10 @@
+MyPoker Tournament v64.9 — Local Python Test
+
+Change from v64.8:
+- Reduced the Full-Screen Controls Appearance font-size maximum from 18 pt to 15 pt.
+- Updated the slider range and labels to show 8–15 pt.
+- Added bounds checks so saved or imported settings above 15 pt are clamped to 15 pt.
+- Kept button-size range at 75–150%.
+- No intentional changes to the Modern instant show/hide behavior, Classic layout, tournament logic, or audio implementation.
+
+Please test the Modern layout with controls visible and hidden, including changing the font and button-size sliders while controls are hidden. This is a local test build; do not deploy to production until approved.
